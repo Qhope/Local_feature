@@ -1,11 +1,7 @@
 ﻿
-#include "opencv2/opencv.hpp"
-# include "opencv2/highgui/highgui.hpp"
 
-
-using namespace cv;
-using namespace std;
-
+#include"Utils.h"
+#include"Harris_corner.h"
 Mat src, src_gray;
 int thresh = 200;
 int max_thresh = 255;
@@ -38,7 +34,7 @@ void cornerHarris_demo(int, void*)
 }
 
 int main() {
-	src = imread("01.jpg", IMREAD_ANYCOLOR);
+	Mat src = imread("board.jpg", IMREAD_ANYCOLOR);
 	cvtColor(src, src_gray, COLOR_BGR2GRAY);
 
 
@@ -47,6 +43,16 @@ int main() {
 	imshow(source_window, src);
 	cornerHarris_demo(0, 0);
 
-	waitKey();
-	return 0;
+	//waitKey();
+	//return 0;
+
+	Mat src1 = imread("board.jpg", IMREAD_GRAYSCALE);
+	Mat dst, gaussCV;
+	//GaussianBlur(src, gaussCV, Size(5, 5), 1.0);
+
+	//gaussianBlur(src, dst, 5, 1.0);
+	//imshow("gaussCV", gaussCV);
+	//imshow("my gauss", dst);
+	dst = detectHarris(src1, 0.05, 0.000001);
+	waitKey(0);
 }
