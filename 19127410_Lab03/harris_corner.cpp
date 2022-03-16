@@ -127,13 +127,16 @@ Mat detectHarris(const Mat& src, float k, float thres)
 	{
 		return Mat();
 	}
-	int width = src.cols;
-	int height = src.rows;
-	int widthStep = src.step[0];
-	int nChannel = src.step[1];
+	Mat src_gray;
+	cvtColor(src, src_gray, COLOR_BGR2GRAY);
+
+	int width = src_gray.cols;
+	int height = src_gray.rows;
+	int widthStep = src_gray.step[0];
+	int nChannel = src_gray.step[1];
 
 	Mat blurImage;
-	if (!gaussianBlur(src, blurImage, 5, 1.0))
+	if (!gaussianBlur(src_gray, blurImage, 5, 1.0))
 	{
 		return Mat();
 	}
@@ -141,13 +144,13 @@ Mat detectHarris(const Mat& src, float k, float thres)
 	waitKey(0);*/
 	pair<Mat, Mat>gradients = computeGradients(blurImage);
 
-	Mat reponseMatrix = computeReponseMatrix(blurImage, gradients, k, thres);
-	vector<pair<int, int>> cornerCoord = coordOfLocalMaxima(reponseMatrix, thres);
+	pair<Mat, float> reponseMatrix = computeReponseMatrix(blurImage, gradients, k, thres);
+	vector<pair<int, int>> cornerCoord = coordOfLocalMaxima(reponseMatrix.first, reponseMatrix.second, thres);
 	Mat dst = mapCornerToImage(src, cornerCoord);
 	return Mat();
 }
 
-Mat computeReponseMatrix(const Mat& src, pair<Mat, Mat> gradients, float k, float thres)
+pair<Mat, float> computeReponseMatrix(const Mat& src, pair<Mat, Mat> gradients, float k, float thres)
 {
 	int width = src.cols;
 	int height = src.rows;
@@ -162,10 +165,11 @@ Mat computeReponseMatrix(const Mat& src, pair<Mat, Mat> gradients, float k, floa
 	Mat reponseMatrix = Mat::zeros(height, width, CV_32FC1);
 	float* reponseData = (float*)reponseMatrix.data;
 
-	int reponseChannel = reponseMatrix.step[1];
-	float det, trace, matrixXX, matrixYY, matrixXY, reponse;
 
-	vector<float>r;
+	int reponseChannel = reponseMatrix.step[1];
+	float det, trace, matrixXX, matrixYY, matrixXY, reponse, maxReponse = 0.0;
+
+
 	for (int y = halfKernel; y < height - halfKernel; y++)
 	{
 		for (int x = halfKernel; x < width - halfKernel; x++)
@@ -179,8 +183,8 @@ Mat computeReponseMatrix(const Mat& src, pair<Mat, Mat> gradients, float k, floa
 			{
 				for (int j = -halfKernel; j <= halfKernel; j++)
 				{
-					Gx.push_back(gradientXData[(y + i) * widthStep + (x + j) * nChannel] / 255.0);
-					Gy.push_back(gradientYData[(y + i) * widthStep + (x + j) * nChannel] / 255.0);
+					Gx.push_back(gradientXData[(y + i) * widthStep + (x + j) * nChannel]);
+					Gy.push_back(gradientYData[(y + i) * widthStep + (x + j) * nChannel]);
 				}
 			}
 			for (int i = 0; i < window.size(); i++)
@@ -195,16 +199,20 @@ Mat computeReponseMatrix(const Mat& src, pair<Mat, Mat> gradients, float k, floa
 
 			reponse = det - k * (trace * trace);
 
-			r.push_back(reponse);
+
 			reponseMatrix.at<float>(y, x) = reponse;
 
+			if (maxReponse < reponse)
+			{
+				maxReponse = reponse;
+			}
 		}
 	}
 
-	return reponseMatrix;
+	return make_pair(reponseMatrix, maxReponse);
 }
 
-vector<pair<int, int>> coordOfLocalMaxima(const Mat& reponseMatrix, float thress)
+vector<pair<int, int>> coordOfLocalMaxima(const Mat& reponseMatrix, float maxReponse, float thres)
 {
 	vector<pair<int, int>> cornerCoord;
 
@@ -213,8 +221,8 @@ vector<pair<int, int>> coordOfLocalMaxima(const Mat& reponseMatrix, float thress
 	int widthStep = reponseMatrix.step[0];
 	int nChannel = reponseMatrix.step[1];
 	int halfSize = 5 / 2;
+	thres = (thres / 255.0) * maxReponse;
 
-	float* reponseData = (float*)reponseMatrix.data;
 	for (int y = halfSize; y < height - halfSize; y++)
 	{
 		for (int x = halfSize; x < width - halfSize; x++)
@@ -237,9 +245,8 @@ vector<pair<int, int>> coordOfLocalMaxima(const Mat& reponseMatrix, float thress
 
 				}
 			}
-			if (max >= thress) {
+			if (max >= thres) {
 				cornerCoord.push_back(maxCoord);
-
 			}
 
 
@@ -259,7 +266,7 @@ Mat mapCornerToImage(const Mat& src, vector<pair<int, int>> cornerCoord)
 
 	for (int i = 0; i < cornerCoord.size(); i++)
 	{
-		circle(src, Point(cornerCoord[i].first, cornerCoord[i].second), 5, Scalar(0), 2, 8, 0);
+		circle(src, Point(cornerCoord[i].second, cornerCoord[i].first), 5, Scalar(255, 0, 0), 2, 8, 0);
 	}
 	imshow("Corner", src);
 	waitKey(0);

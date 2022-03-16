@@ -34,7 +34,7 @@ void cornerHarris_demo(int, void*)
 }
 
 int main() {
-	Mat src = imread("board.jpg", IMREAD_ANYCOLOR);
+	Mat src = imread("06.jpg", IMREAD_ANYCOLOR);
 	cvtColor(src, src_gray, COLOR_BGR2GRAY);
 
 
@@ -46,13 +46,13 @@ int main() {
 	//waitKey();
 	//return 0;
 
-	Mat src1 = imread("board.jpg", IMREAD_GRAYSCALE);
+	Mat src1 = imread("06.jpg", IMREAD_ANYCOLOR);
 	Mat dst, gaussCV;
 	//GaussianBlur(src, gaussCV, Size(5, 5), 1.0);
 
 	//gaussianBlur(src, dst, 5, 1.0);
 	//imshow("gaussCV", gaussCV);
 	//imshow("my gauss", dst);
-	dst = detectHarris(src1, 0.05, 0.000001);
+	dst = detectHarris(src1, 0.05, 100);
 	waitKey(0);
 }
