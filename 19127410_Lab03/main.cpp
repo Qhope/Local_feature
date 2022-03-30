@@ -3,6 +3,7 @@
 #include"Utils.h"
 #include"Harris_corner.h"
 #include"Blob_Detection.h"
+#include"Sift.h"
 Mat src, src_gray;
 int thresh = 200;
 int max_thresh = 255;
@@ -35,13 +36,23 @@ void cornerHarris_demo(int, void*)
 }
 
 int main() {
-	Mat src = imread("flower.jpg", IMREAD_ANYCOLOR);
+	Mat src1 = imread(".\\training_set\\training_images\\01_1.jpg", IMREAD_ANYCOLOR);
+	Mat src2 = imread(".\\training_set\\training_images\\01_2.jpg", IMREAD_ANYCOLOR);
+
+
+	imshow("src1", src1);
+
+	imshow("src2", src2);
+
+	matchBySIFT(src1, src2, 1);
+
 	//cvtColor(src, src_gray, COLOR_BGR2GRAY);
 	//imshow("src", src);
 	//Mat src1 = imread("06.jpg", IMREAD_ANYCOLOR);
 	Mat dst, gaussCV;
 	//dst = detectHarris(src1, 0.05, 100);
-	dst = detectBlob(src);
+	//dst = detectBlob(src);
+	//dst = detectDOG(src);
 	//imshow("Blob", dst);
 	waitKey(0);
 }
