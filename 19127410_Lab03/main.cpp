@@ -2,6 +2,7 @@
 
 #include"Utils.h"
 #include"Harris_corner.h"
+#include"Blob_Detection.h"
 Mat src, src_gray;
 int thresh = 200;
 int max_thresh = 255;
@@ -34,25 +35,13 @@ void cornerHarris_demo(int, void*)
 }
 
 int main() {
-	Mat src = imread("06.jpg", IMREAD_ANYCOLOR);
-	cvtColor(src, src_gray, COLOR_BGR2GRAY);
-
-
-	namedWindow(source_window);
-	createTrackbar("Threshold: ", source_window, &thresh, max_thresh, cornerHarris_demo);
-	imshow(source_window, src);
-	cornerHarris_demo(0, 0);
-
-	//waitKey();
-	//return 0;
-
-	Mat src1 = imread("06.jpg", IMREAD_ANYCOLOR);
+	Mat src = imread("flower.jpg", IMREAD_ANYCOLOR);
+	//cvtColor(src, src_gray, COLOR_BGR2GRAY);
+	//imshow("src", src);
+	//Mat src1 = imread("06.jpg", IMREAD_ANYCOLOR);
 	Mat dst, gaussCV;
-	//GaussianBlur(src, gaussCV, Size(5, 5), 1.0);
-
-	//gaussianBlur(src, dst, 5, 1.0);
-	//imshow("gaussCV", gaussCV);
-	//imshow("my gauss", dst);
-	dst = detectHarris(src1, 0.05, 100);
+	//dst = detectHarris(src1, 0.05, 100);
+	dst = detectBlob(src);
+	//imshow("Blob", dst);
 	waitKey(0);
 }

@@ -145,11 +145,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Blob_Detection.cpp" />
     <ClCompile Include="harris_corner.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Blob_Detection.h" />
     <ClInclude Include="Harris_corner.h" />
     <ClInclude Include="Lib.h" />
     <ClInclude Include="Utils.h" />
